@@ -27,20 +27,19 @@ int main() {
   
   // Área para entrada de dados para primeira carta 
   
-    printf("Insira os dados para a Carta 1:\n");
-    printf("estado (A-H): ");
+    printf("estado (A-H): ALAGOAS ");
     scanf(" %c", &estado1);
     printf("codigo da Carta: A01");
     scanf("%s", codigo1);
-    printf("nome da Cidade: ");
+    printf("nome da Cidade: MACEIÓ");
     scanf(" %[^\n]s", nome da Cidade1);
-    printf("populacao: ");
+    printf("populacao: 3.220.000");
     scanf("%d", &populacao1);
-    printf("area : (em km²) ");
+    printf("area: 27.768 km²");
     scanf("%f", &area1);
-    printf("pib : em bilhões de reais");
+    printf("pib: 76,2 bilhões de reais");
     scanf("%f", &pib1);
-    printf("Número de pontos Turisticos: ");
+    printf("Número de pontos Turisticos: 50");
     scanf("%d", &pontosTuristicos1);
 
 // Exibição dos dados da primeira carta
@@ -55,20 +54,20 @@ int main() {
     printf("Número de pontos Turisticos: %d\n", pontosTuristicos1);
  
   // Área para entrada de dados para segunda carta 
-    printf("\nInsira os dados para a Carta 2:\n"); 
-    printf("estado (A-H): ");
+    
+    printf("estado (A-H): BAHIA");
     scanf(" %c", &estado2);
     printf("codigo da Carta: B02");
     scanf("%s", codigo2);
-    printf("nome da Cidade: ");
+    printf("nome da Cidade: SALVADOR");
     scanf(" %[^\n]s", nomeCidade2);
-    printf("populacao: ");
+    printf("populacao: 14.850.513");
     scanf("%d", &populacao2);
-    printf("area: (em km²) ");
+    printf("area: 25,04 km²");
     scanf("%f", &area2);
-    printf("pib: em bilhões de reais");
+    printf("pib: 28,4 bilhões de reais");
     scanf("%f", &pib2);
-    printf("Número de pontos Turisticos: ");
+    printf("Número de pontos Turisticos: 30");
     scanf("%d", &pontosTuristicos2);
 
     // Exibição dos dados da segunda carta
