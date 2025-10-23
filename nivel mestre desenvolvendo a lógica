@@ -1,0 +1,137 @@
+#include <stdio.h>
+#include <string.h>
+
+// Estrutura representando uma carta do Super Trunfo
+typedef struct {
+    char estado;
+    char codigo[4];
+    char nome[30];
+    int populacao;
+    float area;
+    float pib;
+    int pontos_turisticos;
+    float densidade;
+    float pib_per_capita;
+} Carta;
+
+// Função que exibe o menu de atributos, ocultando o atributo já escolhido
+int exibirMenu(int atributoBloqueado) {
+    int opcao;
+
+    printf("\nEscolha um atributo para comparação:\n");
+
+    switch (atributoBloqueado) {
+        case 0: // Nenhum bloqueado (primeira escolha)
+            printf("1 - População\n");
+            printf("2 - Área\n");
+            printf("3 - PIB\n");
+            printf("4 - Pontos Turísticos\n");
+            printf("5 - Densidade Demográfica\n");
+            printf("6 - PIB per Capita\n");
+            break;
+
+        default: // Segunda escolha (remove o bloqueado)
+            if (atributoBloqueado != 1) printf("1 - População\n");
+            if (atributoBloqueado != 2) printf("2 - Área\n");
+            if (atributoBloqueado != 3) printf("3 - PIB\n");
+            if (atributoBloqueado != 4) printf("4 - Pontos Turísticos\n");
+            if (atributoBloqueado != 5) printf("5 - Densidade Demográfica\n");
+            if (atributoBloqueado != 6) printf("6 - PIB per Capita\n");
+            break;
+    }
+
+    printf("Opção: ");
+    scanf("%d", &opcao);
+
+    // Validação da entrada
+    if (opcao < 1 || opcao > 6 || opcao == atributoBloqueado) {
+        printf("Opção inválida. Tente novamente.\n");
+        return exibirMenu(atributoBloqueado); // chama recursivamente até ser válido
+    }
+
+    return opcao;
+}
+
+// Função que retorna o nome do atributo conforme o número escolhido
+const char* nomeAtributo(int atributo) {
+    switch (atributo) {
+        case 1: return "População";
+        case 2: return "Área";
+        case 3: return "PIB";
+        case 4: return "Pontos Turísticos";
+        case 5: return "Densidade Demográfica";
+        case 6: return "PIB per Capita";
+        default: return "Desconhecido";
+    }
+}
+
+// Função que retorna o valor numérico do atributo escolhido
+float valorAtributo(Carta c, int atributo) {
+    switch (atributo) {
+        case 1: return c.populacao;
+        case 2: return c.area;
+        case 3: return c.pib;
+        case 4: return c.pontos_turisticos;
+        case 5: return c.densidade;
+        case 6: return c.pib_per_capita;
+        default: return 0;
+    }
+}
+
+int main() {
+    // Cartas pré-cadastradas
+    Carta carta1 = {'A', "A01", "Brasil", 214000000, 8516000, 9000, 10, 25.1, 42000};
+    Carta carta2 = {'B', "B02", "Chile", 46000000, 2780000, 500, 7, 16.5, 10800};
+
+    printf("========================================\n");
+    printf("     SUPER TRUNFO - NÍVEL MESTRE\n");
+    printf("========================================\n\n");
+
+    printf("Carta 1: %s\nCarta 2: %s\n", carta1.nome, carta2.nome);
+
+    // Escolha dos dois atributos (menu dinâmico)
+    int atributo1 = exibirMenu(0);
+    int atributo2 = exibirMenu(atributo1);
+
+    // Obtém os valores correspondentes
+    float v1_c1 = valorAtributo(carta1, atributo1);
+    float v1_c2 = valorAtributo(carta2, atributo1);
+    float v2_c1 = valorAtributo(carta1, atributo2);
+    float v2_c2 = valorAtributo(carta2, atributo2);
+
+    // Comparação dos atributos individualmente com operador ternário
+    int vencedor1 = (atributo1 == 5)
+                        ? (v1_c1 < v1_c2 ? 1 : (v1_c1 > v1_c2 ? 2 : 0))
+                        : (v1_c1 > v1_c2 ? 1 : (v1_c1 < v1_c2 ? 2 : 0));
+
+    int vencedor2 = (atributo2 == 5)
+                        ? (v2_c1 < v2_c2 ? 1 : (v2_c1 > v2_c2 ? 2 : 0))
+                        : (v2_c1 > v2_c2 ? 1 : (v2_c1 < v2_c2 ? 2 : 0));
+
+    // Soma dos dois atributos de cada carta
+    float soma1 = v1_c1 + v2_c1;
+    float soma2 = v1_c2 + v2_c2;
+
+    // Exibição dos resultados detalhados
+    printf("\n=========== RESULTADO DA RODADA ===========\n");
+    printf("Atributos escolhidos: %s e %s\n\n", nomeAtributo(atributo1), nomeAtributo(atributo2));
+
+    printf("%-25s | %-15s | %-15s\n", "Atributo", carta1.nome, carta2.nome);
+    printf("-----------------------------------------------------------\n");
+    printf("%-25s | %-15.2f | %-15.2f\n", nomeAtributo(atributo1), v1_c1, v1_c2);
+    printf("%-25s | %-15.2f | %-15.2f\n", nomeAtributo(atributo2), v2_c1, v2_c2);
+    printf("-----------------------------------------------------------\n");
+    printf("%-25s | %-15.2f | %-15.2f\n", "Soma dos Atributos", soma1, soma2);
+
+    // Determina o vencedor final
+    if (soma1 > soma2)
+        printf("\n Vencedora: %s!\n", carta1.nome);
+    else if (soma2 > soma1)
+        printf("\n Vencedora: %s!\n", carta2.nome);
+    else
+        printf("\n Empate!\n");
+
+    printf("========================================\n\n");
+
+    return 0;
+}
