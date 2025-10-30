@@ -1,0 +1,109 @@
+#include <stdio.h>
+
+/*
+-----------------------------------------------------------
+  DESAFIO MESTRE – CRIANDO MOVIMENTOS COMPLEXOS EM C
+  Autor: Leandro Novais (base de estudo)
+  Objetivo:
+    - Implementar movimentos de peças de xadrez com recursividade
+      e loops complexos.
+-----------------------------------------------------------
+*/
+
+// ==============================
+// FUNÇÕES RECURSIVAS
+// ==============================
+
+// Função recursiva para mover a Torre (em linha reta)
+void moverTorre(int casas, int atual) {
+    if (atual >= casas) return; // caso base
+    printf("Torre -> Direita\n");
+    moverTorre(casas, atual + 1); // chamada recursiva
+}
+
+// Função recursiva para mover o Bispo (diagonal)
+// Inclui loops aninhados para controlar o movimento horizontal e vertical
+void moverBispo(int vertical, int horizontal, int passo) {
+    if (passo >= vertical || passo >= horizontal) return; // caso base
+
+    // Loop externo controla movimento vertical
+    for (int i = 0; i < 1; i++) {
+        printf("Bispo -> Cima ");
+        // Loop interno controla movimento horizontal
+        for (int j = 0; j < 1; j++) {
+            printf("e Direita\n");
+        }
+    }
+
+    moverBispo(vertical, horizontal, passo + 1); // chamada recursiva
+}
+
+// Função recursiva para mover a Rainha (combina Torre + Bispo)
+void moverRainha(int casas, int passo) {
+    if (passo >= casas) return; // caso base
+    // Movimento na horizontal (como a torre)
+    printf("Rainha -> Direita\n");
+    // Movimento na diagonal (como o bispo)
+    printf("Rainha -> Cima e Direita\n");
+    moverRainha(casas, passo + 1); // chamada recursiva
+}
+
+// ==============================
+// FUNÇÃO COM LOOPS COMPLEXOS (CAVALO)
+// ==============================
+
+void moverCavalo(int movimentos) {
+    /*
+      O Cavalo se move em "L":
+      - 2 casas para cima
+      - 1 casa para a direita
+      Aqui usamos loops aninhados com controle de fluxo.
+    */
+    int contador = 0;
+
+    for (int i = 1; i <= movimentos; i++) {
+        for (int j = 1; j <= 2; j++) {
+            if (j == 1) {
+                printf("Cavalo -> Cima\n");
+            } else if (j == 2) {
+                printf("Cavalo -> Cima\n");
+                continue; // vai direto para o próximo loop externo
+            }
+        }
+
+        // Após as duas subidas, move uma para a direita
+        printf("Cavalo -> Direita\n");
+
+        contador++;
+        if (contador >= movimentos) {
+            break; // evita loops desnecessários
+        }
+    }
+}
+
+// ==============================
+// PROGRAMA PRINCIPAL
+// ==============================
+
+int main() {
+    int casasTorre = 3;
+    int casasBispo = 3;
+    int casasRainha = 3;
+    int movimentosCavalo = 2;
+
+    printf("=== Movimentos da Torre ===\n");
+    moverTorre(casasTorre, 0);
+
+    printf("\n=== Movimentos do Bispo ===\n");
+    moverBispo(casasBispo, casasBispo, 0);
+
+    printf("\n=== Movimentos da Rainha ===\n");
+    moverRainha(casasRainha, 0);
+
+    printf("\n=== Movimentos do Cavalo ===\n");
+    moverCavalo(movimentosCavalo);
+
+    printf("\n--- Fim da Simulação ---\n");
+
+    return 0;
+}
