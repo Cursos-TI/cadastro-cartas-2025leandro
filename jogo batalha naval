@@ -1,0 +1,195 @@
+/* batalhanaval_habilidades.c
+   Desafio: nível mestre - Habilidades com áreas de efeito
+   Autor: (seu nome)
+   Compilar: gcc -std=c11 -O2 -o batalhanaval batalhanaval_habilidades.c
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define BOARD_SIZE 10
+
+/* Valores no tabuleiro */
+#define WATER 0
+#define SHIP 3
+#define EFFECT 5
+
+/* Tamanho das matrizes de habilidade (deve ser ímpar para ter um centro claro) */
+#define SKILL_SIZE 7
+
+/* Função: inicializa tabuleiro com água (0) */
+void init_board(int board[BOARD_SIZE][BOARD_SIZE]) {
+    for (int r = 0; r < BOARD_SIZE; ++r)
+        for (int c = 0; c < BOARD_SIZE; ++c)
+            board[r][c] = WATER;
+}
+
+/* Coloca alguns navios de exemplo no tabuleiro (valores 3). 
+   Para simplificação as posições são fixas no código (requisito). */
+void place_example_ships(int board[BOARD_SIZE][BOARD_SIZE]) {
+    /* Um navio vertical de tamanho 4 */
+    int sr = 1, sc = 2;
+    for (int i = 0; i < 4; ++i) board[sr + i][sc] = SHIP;
+
+    /* Um navio horizontal de tamanho 3 */
+    sr = 5; sc = 5;
+    for (int i = 0; i < 3; ++i) board[sr][sc + i] = SHIP;
+
+    /* Um navio horizontal de tamanho 2 */
+    board[8][1] = SHIP;
+    board[8][2] = SHIP;
+}
+
+/* Função: cria a matriz "cone" (apontando para baixo).
+   Construção dinâmica: para cada linha r, marcamos 1s entre left e right.
+   Ex.: para SKILL_SIZE = 7, a "base" amplia a cada linha a partir do topo. */
+void build_cone(int mat[SKILL_SIZE][SKILL_SIZE]) {
+    int center = SKILL_SIZE / 2;
+    for (int r = 0; r < SKILL_SIZE; ++r) {
+        for (int c = 0; c < SKILL_SIZE; ++c) {
+            mat[r][c] = 0; /* padrão: não afetado */
+        }
+    }
+
+    /* Apex (top) é a linha 0, coluna center. Em cada linha abaixo ampliamos. */
+    for (int r = 0; r < SKILL_SIZE; ++r) {
+        /* left/right expand conforme r (o cone aponta para baixo) */
+        int left = center - r;
+        int right = center + r;
+        if (left < 0) left = 0;
+        if (right >= SKILL_SIZE) right = SKILL_SIZE - 1;
+
+        for (int c = left; c <= right; ++c) {
+            /* Condicional para definir 1 (afetado) dentro do cone */
+            mat[r][c] = 1;
+        }
+    }
+}
+
+/* Função: cria a matriz "cruz" (ponto de origem no centro).
+   Marcamos a linha central inteira e a coluna central inteira. */
+void build_cross(int mat[SKILL_SIZE][SKILL_SIZE]) {
+    int center = SKILL_SIZE / 2;
+    for (int r = 0; r < SKILL_SIZE; ++r) {
+        for (int c = 0; c < SKILL_SIZE; ++c) {
+            /* Condicional: é parte da cruz quando r == center ou c == center */
+            if (r == center || c == center) mat[r][c] = 1;
+            else mat[r][c] = 0;
+        }
+    }
+
+    /* Opcional: afinar os braços da cruz (poderia ser feito aqui) */
+}
+
+/* Função: cria a matriz "octaedro" vista frontal -> forma de losango (diamante).
+   Usamos a condição |dr| + |dc| <= center para formar um losango. */
+void build_octahedron(int mat[SKILL_SIZE][SKILL_SIZE]) {
+    int center = SKILL_SIZE / 2;
+    for (int r = 0; r < SKILL_SIZE; ++r) {
+        for (int c = 0; c < SKILL_SIZE; ++c) {
+            int dr = r - center;
+            int dc = c - center;
+            /* Condicional: pontos cuja soma das distâncias em manhattan <= center formam o losango */
+            if (abs(dr) + abs(dc) <= center) mat[r][c] = 1;
+            else mat[r][c] = 0;
+        }
+    }
+}
+
+/* Sobrepõe uma matriz de habilidade (contendo 0/1) ao tabuleiro.
+   A matriz é centrada em (origin_r, origin_c) no tabuleiro.
+   Quando um elemento da habilidade for 1, definimos o tabuleiro como EFFECT (5).
+   Faz checagem de limites para não sair do tabuleiro. */
+void overlay_skill(int board[BOARD_SIZE][BOARD_SIZE],
+                   int skill[SKILL_SIZE][SKILL_SIZE],
+                   int origin_r, int origin_c) {
+    int center = SKILL_SIZE / 2;
+
+    for (int r = 0; r < SKILL_SIZE; ++r) {
+        for (int c = 0; c < SKILL_SIZE; ++c) {
+            if (skill[r][c] == 1) {
+                int board_r = origin_r - center + r;
+                int board_c = origin_c - center + c;
+                /* Verifica limites antes de escrever */
+                if (board_r >= 0 && board_r < BOARD_SIZE && board_c >= 0 && board_c < BOARD_SIZE) {
+                    board[board_r][board_c] = EFFECT;
+                }
+            }
+        }
+    }
+}
+
+/* Exibe o tabuleiro no console com formatação simples.
+   Mostra números de linha/coluna para facilitar a leitura. */
+void print_board(int board[BOARD_SIZE][BOARD_SIZE]) {
+    printf("   "); /* cabeçalho de colunas */
+    for (int c = 0; c < BOARD_SIZE; ++c) printf("%d ", c);
+    printf("\n");
+
+    for (int r = 0; r < BOARD_SIZE; ++r) {
+        printf("%2d ", r);
+        for (int c = 0; c < BOARD_SIZE; ++c) {
+            int val = board[r][c];
+            /* Print simples (0,3,5) separados por espaço */
+            printf("%d ", val);
+        }
+        printf("\n");
+    }
+}
+
+/* Programa principal */
+int main(void) {
+    int board[BOARD_SIZE][BOARD_SIZE];
+    int cone[SKILL_SIZE][SKILL_SIZE];
+    int cross[SKILL_SIZE][SKILL_SIZE];
+    int octa[SKILL_SIZE][SKILL_SIZE];
+
+    /* Inicializações */
+    init_board(board);
+    place_example_ships(board);
+
+    /* Construção dinâmica das matrizes de habilidade (usando loops e condicionais) */
+    build_cone(cone);
+    build_cross(cross);
+    build_octahedron(octa);
+
+    /* Pontos de origem no tabuleiro (lin, col) - definidos diretamente no código:
+       - coloquei um exemplo para cada habilidade, você pode alterar conforme quiser. */
+    int origin_cone_r = 2, origin_cone_c = 2;   /* cone no quadrante superior esquerdo */
+    int origin_cross_r = 4, origin_cross_c = 7; /* cruz à direita-central */
+    int origin_octa_r = 7, origin_octa_c = 4;   /* octaedro (losango) na parte inferior */
+
+    /* Sobrepõe as habilidades no tabuleiro (as áreas afetadas recebem o valor EFFECT=5).
+       OBS: Essa sobreposição sobrescreve o conteúdo anterior (inclusive navios) para
+       que a área afetada seja representada com um símbolo distinto. */
+    overlay_skill(board, cone, origin_cone_r, origin_cone_c);
+    overlay_skill(board, cross, origin_cross_r, origin_cross_c);
+    overlay_skill(board, octa, origin_octa_r, origin_octa_c);
+
+    /* Exibe mapas das matrizes de habilidade (opcional) e o tabuleiro final */
+    printf("Matriz - Cone (1 = afetado):\n");
+    for (int r = 0; r < SKILL_SIZE; ++r) {
+        for (int c = 0; c < SKILL_SIZE; ++c) printf("%d ", cone[r][c]);
+        printf("\n");
+    }
+    printf("\n");
+
+    printf("Matriz - Cruz (1 = afetado):\n");
+    for (int r = 0; r < SKILL_SIZE; ++r) {
+        for (int c = 0; c < SKILL_SIZE; ++c) printf("%d ", cross[r][c]);
+        printf("\n");
+    }
+    printf("\n");
+
+    printf("Matriz - Octaedro/Losango (1 = afetado):\n");
+    for (int r = 0; r < SKILL_SIZE; ++r) {
+        for (int c = 0; c < SKILL_SIZE; ++c) printf("%d ", octa[r][c]);
+        printf("\n");
+    }
+    printf("\n");
+
+    printf("Tabuleiro final (0=agua, 3=navio, 5=area afetada):\n");
+    print_board(board);
+
+    return 0;
+}
